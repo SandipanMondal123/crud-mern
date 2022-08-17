@@ -9,15 +9,15 @@ const User = require('../models/userModel')
 //@route POST /api/users
 //@acess public
 const registerUser = asyncHandler (async (req,res) => {
-    const { name, email, password} = req.body
+    const { name, email, password} = req.body //this is getting the body
 
-    if(!name || !email || !password){
+    if(!name || !email || !password){ //make sure that nothing is blank
         res.status(400)
         throw new Error('Please add all fields');
     }
 
-    const userExists = await User.findOne({email})
-
+    const userExists = await User.findOne({email}) //findOne checks through the database in regards to the User Collection. If it finds nothing, it will return null, else it will return the object
+    
     if(userExists){
         res.status(400)
         throw new Error('User Already Exists')
@@ -32,12 +32,14 @@ const registerUser = asyncHandler (async (req,res) => {
     })
 
     if(user){
+        
         res.status(201).json({
             _id: user.id,
             name: user.name,
             email: user.email,
             token: generateToken(user._id)
         })
+        
     }else {
         res.status(400)
         throw new Error('Invalid user data information')
@@ -70,7 +72,7 @@ const loginUser = asyncHandler(async (req,res) => {
 //@acess private
 const getMe = asyncHandler(async (req,res) => {
     const {_id, name, email} = await User.findById(req.user.id)
-
+    
     res.status(200).json({
         id: _id,
         name,
@@ -80,6 +82,8 @@ const getMe = asyncHandler(async (req,res) => {
 
 
 const generateToken = (id) => {
+    
+    
     return jwt.sign({id}, process.env.JWT_SECRET, {
         expiresIn: '30d',
     })
